@@ -48,7 +48,7 @@ app.get('/', async (req, res) => {
             fetch(`${API_BASE_URL}/games`),
             fetch(`${API_BASE_URL}/group/name/gr1/monthly`),
             fetch(`${API_BASE_URL}/group/name/gr2/monthly`),
-            fetch(`${API_BASE_URL}/ads?site=lucky-satta7.com`),
+            fetch(`${API_BASE_URL}/ads?site=e-satta.com`),
             fetch(`${API_BASE_URL}/result/KALYAN%20KING`)
         ]);
         
@@ -144,12 +144,12 @@ app.post('/gameYearResults', (req, res) => {
 
 
 const blogsData = {
-    'lucky-satta7-guide-2026-how-it-works-important-facts': {
-        title: "lucky satta7 Guide 2026: How It Works & Important Facts",
+    'e-satta-guide-2026-how-it-works-important-facts': {
+        title: "E SATTA Guide 2026: How It Works & Important Facts",
         date: "9 May 2026",
-        tags: "lucky satta7 guide 2026, LUCKY-SATTA 7",
+        tags: "E SATTA guide 2026, E SATTA",
         image: "/assets/images/blogImages/blog_lucky_satta7_guide.png",
-        content: "<p>There are thousands of visitors online every day looking for live results, charts, number trends. In this guide, we will dive deep into how Lucky Satta 7 works, the crucial patterns you must know, and important facts about playing safely and smartly.</p><p>Understanding the fundamental mechanisms is key. Always do your own research and look at historical charts to find trends before making decisions.</p>"
+        content: "<p>There are thousands of visitors online every day looking for live results, charts, number trends. In this guide, we will dive deep into how E SATTA works, the crucial patterns you must know, and important facts about playing safely and smartly.</p><p>Understanding the fundamental mechanisms is key. Always do your own research and look at historical charts to find trends before making decisions.</p>"
     },
     'delhi-bazar-satta-charts-2026-understanding-number-trends-market-updates': {
         title: "Delhi Bazar Satta Charts 2026: Understanding Number Trends & Market Updates",
@@ -159,11 +159,11 @@ const blogsData = {
         content: "<p>In 2026, Delhi Bazar Satta is once again making waves online. The Delhi Bazar charts provide a clear picture of market trends.</p><p>Discover the latest numbers and patterns in this market update. We break down the most frequent numbers, the monthly shifts, and what you should watch out for this season.</p>"
     },
     'the-truth-behind-faridabad-satta-king-payout-discussions-and-internet-claims': {
-        title: "The Truth Behind Faridabad LUCKY-SATTA 7 Payout Discussions and Internet Claims",
+        title: "The Truth Behind Faridabad E SATTA Payout Discussions and Internet Claims",
         date: "10 May 2026",
-        tags: "faridabad satta, faridabad LUCKY-SATTA 7",
+        tags: "faridabad satta, faridabad E SATTA",
         image: "/assets/images/blogImages/blog_faridabad_truth.png",
-        content: "<p>Faridabad LUCKY-SATTA 7 Payout Discussions and Internet Claims. Let me tell you what happens every day when players discuss their strategies online.</p><p>We are debunking the most common myths and confirming the truth about internet claims. Remember to only trust verified sources and avoid falling for online scams.</p>"
+        content: "<p>Faridabad E SATTA Payout Discussions and Internet Claims. Let me tell you what happens every day when players discuss their strategies online.</p><p>We are debunking the most common myths and confirming the truth about internet claims. Remember to only trust verified sources and avoid falling for online scams.</p>"
     }
 };
 

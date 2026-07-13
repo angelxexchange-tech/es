@@ -1,7 +1,7 @@
 {
-    "name": "lucky-satta7-ejs",
+    "name": "e-satta-ejs",
     "version": "1.0.0",
-    "description": "Express server rendering existing lucky-satta7 files as EJS templates.",
+    "description": "Express server rendering existing e-satta files as EJS templates.",
     "main": "app.js",
     "scripts": {
         "start": "node app.js",
