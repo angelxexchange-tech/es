@@ -1,0 +1,1531 @@
+
+    <div id="__next">
+        <div>
+            <div class="max-w-screen-xl px-4 mx-auto md:px-6">
+                <h1 class="text-lg font-bold text-center text-gray-900 uppercase">Welcome to
+                    <!-- -->lucky-satta7official website
+                </h1>
+            </div>
+            <div id="timerBox" class="py-2 text-lg font-bold text-center text-blue-600 bg-white">June 22, 2026 3:11:11
+                PM</div>
+
+            <div class="w-full mx-auto mb-3 bg-black pb-2 overflow-hidden ">
+                
+
+                <% 
+                   const allowedGames = ["delhi bazaar", "shree ganesh", "shri ganesh", "faridabad", "gali", "disawar", "dishawer", "delhibazar"];
+                   let validCards = (upcomingCards || []).filter(c => {
+                       const name = (c.name || "").trim().toLowerCase();
+                       const strictName = name.replace(/\s+/g, '');
+                       return allowedGames.includes(name) || allowedGames.includes(strictName);
+                   });
+                   
+                   if (validCards.length === 0 && upcomingCards && upcomingCards.length > 0) {
+                       validCards = upcomingCards;
+                   }
+
+                   let filteredCards = validCards.filter(c => {
+                       if (!c.latestResult) return true; // It's upcoming, show it
+                       
+                       if (c.resultTime) {
+                           const [hours, minutes] = c.resultTime.split(':').map(Number);
+                           const now = new Date();
+                           // Convert now to IST to match resultTime
+                           const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                           let resultDate = new Date(istTime);
+                           resultDate.setHours(hours, minutes, 0, 0);
+                           
+                           // Handle overnight wraps
+                           if (istTime.getTime() < resultDate.getTime() && hours > 12 && istTime.getHours() < 12) {
+                               resultDate.setDate(resultDate.getDate() - 1);
+                           }
+                           
+                           const diffMins = (istTime.getTime() - resultDate.getTime()) / 60000;
+                           return diffMins >= 0 && diffMins <= 25; // Show if within 25 minutes
+                       }
+                       return false;
+                   });
+
+                   // Fallback so the box isn't empty: show NEXT upcoming allowed game
+                   if (filteredCards.length === 0) {
+                       let allowedAllGames = (typeof allGames !== 'undefined' ? allGames : []).filter(g => {
+                           const name = (g.name || "").trim().toLowerCase();
+                           const strictName = name.replace(/\s+/g, '');
+                           return allowedGames.includes(name) || allowedGames.includes(strictName);
+                       });
+
+                       const fallbackNow = new Date();
+                       const fallbackIstTime = new Date(fallbackNow.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                       const currentMins = fallbackIstTime.getHours() * 60 + fallbackIstTime.getMinutes();
+                       let nextUpcomingGame = null;
+                       let minDiff = Infinity;
+
+                       allowedAllGames.forEach(g => {
+                           if (g.resultTime) {
+                               const [h, m] = g.resultTime.split(':').map(Number);
+                               const gameMins = h * 60 + m;
+                               let diff = gameMins - currentMins;
+                               if (diff <= 0) {
+                                   diff += 24 * 60; // if it already passed today, it's next tomorrow
+                               }
+                               // Ignore games that just passed within 40 mins because they would already be in filteredCards if they were returned by the API
+                               if (diff < minDiff && diff > 40) {
+                                   minDiff = diff;
+                                   nextUpcomingGame = g;
+                               }
+                           }
+                       });
+
+                       if (nextUpcomingGame) {
+                           filteredCards = [{
+                               name: nextUpcomingGame.name,
+                               latestResult: null, // Force upcoming spinner
+                               resultTime: nextUpcomingGame.resultTime
+                           }];
+                       }
+                   }
+                %>
+                <% if (filteredCards.length > 0) { %>
+                    <% filteredCards.forEach((card, index) => { %>
+                        <div class="upcoming-game-slide flex flex-col items-center justify-center text-sm text-gray-200 transition-opacity duration-500 ease-in-out <%= index === 0 ? 'block opacity-100' : 'hidden opacity-0' %>" role="alert" data-index="<%= index %>">
+                            <span class="sr-only">Info</span>
+                            <div class="text-2xl font-medium text-center md:font-medium md:text-base">
+                                <p class="mb-1 text-3xl font-bold text-white uppercase md:font-medium md:text-base"><%= card.name %></p>
+                                <% if (card.latestResult) { %>
+                                    <span class="text-3xl font-bold lead text-gray-50"><%= typeof card.latestResult === 'object' ? card.latestResult.result : card.latestResult %></span>
+                                <% } else { %>
+                                    <svg aria-hidden="true" class="inline text-gray-200 w-7 h-7 animate-spin fill-green-600"
+                                        viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                            fill="currentColor"></path>
+                                        <path
+                                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                            fill="currentFill"></path>
+                                    </svg>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <% if (filteredCards.length > 1) { %>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const slides = document.querySelectorAll('.upcoming-game-slide');
+                                let currentSlide = 0;
+                                setInterval(() => {
+                                    slides[currentSlide].classList.remove('block', 'opacity-100');
+                                    slides[currentSlide].classList.add('hidden', 'opacity-0');
+                                    currentSlide = (currentSlide + 1) % slides.length;
+                                    slides[currentSlide].classList.remove('hidden', 'opacity-0');
+                                    slides[currentSlide].classList.add('block', 'opacity-100');
+                                }, 3000);
+                            });
+                        </script>
+                    <% } %>
+                <% } else { %>
+                    <div class="flex items-center justify-center space-y-4 text-sm text-gray-200" role="alert">
+                        <span class="sr-only">Info</span>
+                        <div class="text-2xl font-medium text-center md:font-medium md:text-base">
+                            <p class="mb-1 text-3xl font-bold text-white uppercase md:font-medium md:text-base">DELHI BAZAR</p>
+                            <svg aria-hidden="true" class="inline text-gray-200 w-7 h-7 animate-spin fill-green-600"
+                                viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                    fill="currentColor"></path>
+                                <path
+                                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                    fill="currentFill"></path>
+                            </svg>
+                        </div>
+                    </div>
+                <% } %>
+
+                
+
+
+
+            </div>
+
+            <!-- 4 Games Cards Row -->
+            <%
+                const findGame = (name) => {
+                    return (gr1Games || []).find(g => g.name && g.name.toLowerCase().trim() === name.toLowerCase().trim()) || null;
+                };
+                const getResult = (game) => {
+                    if (!game) return "XX";
+                    if (game.todayNumber && game.todayNumber.value) return game.todayNumber.value;
+                    return "XX";
+                };
+                const getPrevResult = (game) => {
+                    if (!game) return "XX";
+                    if (game.yesterdayNumber && game.yesterdayNumber.value) {
+                        return game.yesterdayNumber.value;
+                    }
+                    return "XX";
+                };
+                const getTime = (game, defaultTime) => {
+                    return (game && game.resultTime12h) ? game.resultTime12h : defaultTime;
+                };
+                const getChartUrl = (game) => {
+                    if (!game || !game.name) return "#";
+                    return "/chart-2026/" + game.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + "-satta-result";
+                };
+            %>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 p-2 md:p-4 w-full">
+                <% if (gr1Games && gr1Games.length > 0) { %>
+                    <% 
+                        const hindiNames = {
+                            "faridabad": "फ़रीदाबाद",
+                            "paisa bazaar": "पैसा बाज़ार",
+                            "shree ganesh": "श्री गणेश",
+                            "shri ganesh": "श्री गणेश",
+                            "delhi bazaar": "दिल्ली बाज़ार",
+                            "delhibazar": "दिल्ली बाज़ार",
+                            "gali": "गली",
+                            "disawar": "दिसावर",
+                            "dishawer": "दिसावर",
+                            "delhi state": "दिल्ली स्टेट",
+                            "pune city": "पुणे सिटी",
+                            "kalyan": "कल्याण",
+                            "mumbai": "मुंबई",
+                            "city bazaar": "सिटी बाज़ार",
+                            "navi mumbai": "नवी मुंबई",
+                            "delhi king": "दिल्ली किंग",
+                            "ajmer sharif": "अजमेर शरीफ",
+                            "ayodya nagari": "अयोध्या नगरी",
+                            "bhagya rekha": "भाग्य रेखा",
+                            "bitcoin": "बिटकॉइन",
+                            "chandigarh city": "चंडीगढ़ सिटी",
+                            "cyber city": "साइबर सिटी",
+                            "dhaula kuan": "धौला कुआँ",
+                            "ghanta ghar": "घंटा घर",
+                            "ghaziabad": "गाज़ियाबाद",
+                            "golden city": "गोल्डन सिटी",
+                            "g-town": "जी-टाउन",
+                            "jai bheem": "जय भीम",
+                            "jamuna paar": "जमुना पार",
+                            "kalyan king": "कल्याण किंग",
+                            "maa ganga": "माँ गंगा",
+                            "miraz": "मिराज़",
+                            "sadar bazaar": "सदर बाज़ार",
+                            "sector 17": "सेक्टर 17",
+                            "subh labh": "शुभ लाभ"
+                        };
+                        const getHindiName = (name) => {
+                            if (!name) return "";
+                            const n = name.replace(/\s+/g, ' ').trim().toLowerCase();
+                            return hindiNames[n] ? hindiNames[n] : "";
+                        };
+
+                        const now = new Date();
+                        const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                        const currentMins = istTime.getHours() * 60 + istTime.getMinutes();
+
+                        const getMins = (timeStr) => {
+                            if (!timeStr) return 24 * 60;
+                            const [h, m] = timeStr.split(':').map(Number);
+                            return h * 60 + m;
+                        };
+
+                        let recentGames = gr1Games.filter(g => {
+                            if (g.todayNumber && g.todayNumber.value && g.todayNumber.declaredAt) {
+                                const declaredTime = new Date(g.todayNumber.declaredAt);
+                                const diffMins = (now.getTime() - declaredTime.getTime()) / 60000;
+                                return diffMins >= 0 && diffMins <= 30; 
+                            }
+                            return false;
+                        });
+
+                        recentGames.sort((a, b) => {
+                            const dA = new Date(a.todayNumber.declaredAt).getTime();
+                            const dB = new Date(b.todayNumber.declaredAt).getTime();
+                            return dB - dA; 
+                        });
+
+                        let upcomingGames = gr1Games.filter(g => {
+                            return !(g.todayNumber && g.todayNumber.value);
+                        });
+
+                        upcomingGames.sort((a, b) => {
+                            let mA = getMins(a.resultTime);
+                            let mB = getMins(b.resultTime);
+                            if (mA < currentMins - 60) mA += 24 * 60;
+                            if (mB < currentMins - 60) mB += 24 * 60;
+                            return mA - mB;
+                        });
+
+                        let displayGames = [...recentGames, ...upcomingGames];
+
+                        if (displayGames.length === 0) {
+                            displayGames = gr1Games.slice();
+                        }
+                    %>
+                    <% displayGames.slice(0, 4).forEach(game => { %>
+                        <div class="bg-white flex flex-col text-center rounded-[3px] overflow-hidden" style="border: 1px solid #dca3a3; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+                            <div class="text-white py-[8px]" style="background-color: #9c1b1b; border-bottom: 2px solid #841616;">
+                                <div class="text-[1.2rem] font-medium leading-tight tracking-wide"><%= (game.name || "").toUpperCase() %></div>
+                                <% const hName = getHindiName(game.name); if(hName) { %>
+                                    <div class="text-[0.9rem] font-medium leading-tight"><%= hName %></div>
+                                <% } %>
+                            </div>
+                            <div class="pt-[22px] pb-[16px] flex-grow bg-white">
+                                <div class="text-[3.2rem] font-normal leading-none mb-[12px]" style="color: #3b4255;"><%= getResult(game) %></div>
+                                <div class="text-[14px] font-medium" style="color: #28a745;"><%= getTime(game, "Time TBA") %></div>
+                            </div>
+                            <div class="pb-[14px] bg-white flex flex-col gap-[3px]" style="color: #337ab7;">
+                                <a href="<%= getChartUrl(game) %>" class="hover:underline text-[13px]">पिछला रिजल्ट <%= getPrevResult(game) %></a>
+                                <a href="<%= getChartUrl(game) %>" class="hover:underline text-[13px]">Record Chart</a>
+                                <a href="/mostfrequent" class="hover:underline text-[12px] mt-[2px]" style="color: #4a90e2;">Extended chart on SattaFree &rarr;</a>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-span-2 lg:col-span-4 text-center py-4 text-gray-500">No games available</div>
+                <% } %>
+            </div>
+
+            <h3 class="py-2 text-lg font-semibold text-center text-blue-600 bg-white">हा भाई यही आती हे सबसे पहले खबर
+                रूको और देखो</h3>
+
+
+            <section class="bg-white">
+                <% if (typeof kalyanKing !== 'undefined' && kalyanKing) { %>
+                <div class="text-center">
+                    <h3 class="pt-3 text-xl font-bold uppercase"><a href="/chart-2026/<%= kalyanKing.game.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') %>-satta-result"><%= kalyanKing.game %></a>
+                    </h3>
+                    <p class="py-2 text-sm text-gray-800">
+                        <%= kalyanKing.resultTime || '' %> </p>
+                    <div class="flex items-center justify-center">
+                        <strong class="text-2xl"><%= kalyanKing.previousResult || 'XX' %></strong>
+                        <span class="mx-4 text-3xl font-bold text-blue-500">➜</span>
+                        <strong class="text-2xl"><%= kalyanKing.latestResult || 'XX' %></strong>
+                    </div>
+                </div>
+                <% } %>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <section class="grid grid-cols-1 gap-2 bg-white lg:grid-cols-1">
+        <div
+            style="box-sizing:border-box;position:relative;display:flex;flex-direction:column;max-width:100%;margin-left:auto;margin-right:auto;overflow-wrap:breakWord;background-color:#ffffff;background-clip:borderBox;overflow:hidden;border:0px;border-radius:0.25rem;margin-top:0.5rem;margin-bottom:0.5rem">
+            <div class="row">
+                <div class="card-body"
+                    style="box-sizing:borderBox;flex:1 1 auto;min-height:1px;padding:1.25rem;border:1px dashed red;background:#ffd800;border-radius:20px;font-weight:bold">
+                    <h3 class="blink_black"> "Now WhatsApp players can also join our WhatsApp channel to get results
+                        quickly and receive superfast results."</h3>
+                    <a href="https://whatsapp.com/channel/0029VafVyGV1SWsynynlOO0W" target="--blank"><img
+                            src="https://lucky-satta.com/whatsAppChat.png"
+                            style="height:80px; margin:auto; width:230px" /></a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="grid grid-cols-1 gap-2 bg-white lg:grid-cols-1">
+        <div
+            style="box-sizing:border-box;position:relative;display:flex;flex-direction:column;max-width:100%;margin-left:auto;margin-right:auto;overflow-wrap:breakWord;background-color:#ffffff;background-clip:borderBox;overflow:hidden;border:0px;border-radius:0.25rem;margin-top:0.5rem;margin-bottom:0.5rem">
+            <div class="row">
+                <div class="card-body"
+                    style="box-sizing:borderBox;flex:1 1 auto;min-height:1px;padding:1.25rem;border:1px dashed red;background:#ffd800;border-radius:20px;font-weight:bold">
+                    <h3 class="blink_black">"Now Telegram players can also join our Telegram channel to get results
+                        quickly and receive superfast results."</h3>
+                    <a href="#" target="--blank"><img
+                            src="https://lucky-satta.com/telegramLogoChat.png"
+                            style="height:80px; margin:auto; width:230px" /></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <% const topAds = (ads || []).filter(ad => ad.position === 'top' && ad.isActive !== false && ad.site === 'lucky-satta7.com'); %>
+    <% if (topAds.length > 0) { %>
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2 p-4 md:p-6">
+        <div
+            class="bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-300 border-white/30 shadow-cyan-200/50 relative overflow-hidden text-center px-2 py-6 md:px-8 md:py-8 rounded-2xl md:rounded-3xl backdrop-blur-sm text-white flex flex-col justify-center items-center">
+            <div class="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl">
+                <div
+                    class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500">
+                </div>
+                <div
+                    class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
+            </div>
+            <div class="absolute inset-0 rounded-2xl md:rounded-3xl p-[2px]">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent ">
+                </div>
+            </div>
+            <div class="relative z-10 w-full">
+                <div
+                    class="text-base md:text-lg mb-4 h-fit leading-6 font-normal text-white/60 drop-shadow-sm [&amp;_a]:text-white [&amp;_a]:underline [&amp;_a]:hover:no-underline [&amp;_a]:font-bold [&amp;_strong]:text-white [&amp;_strong]:font-black [&amp;_em]:text-white/80 [&amp;_em]:italic [&amp;_p]:mb-1 last:[&amp;_p]:mb-0 ">
+                    <% topAds.forEach(ad => { %>
+                        <%- ad.content %>
+                    <% }); %>
+                </div>
+            </div>
+            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-white/30 rounded-tr-xl"></div>
+            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-white/30 rounded-bl-xl"></div>
+        </div>
+    </section>
+    <% } %>
+    </section>
+    <h2
+        class="flex items-center justify-center text-center px-2 text-xl sm:text-4xl md:text-3xl lg:text-4xl font-bold text-blue-500 leading-tight">
+        lucky-satta7'S Popular Game List </h2>
+
+    <section class="row">
+        <div>
+            <div class="flex items-center justify-around space-x-4 bg-yellow-400 mt-4">
+                <p class="w-full p-3 font-bold text-white bg-purple-800">GAME LIST</p>
+                <div class="flex items-center justify-around bg-yellow-400 w-[75%]">
+                    <p class="text-lg font-semibold">कल</p>
+                    <p class="text-lg font-semibold">आज</p>
+                </div>
+            </div>
+
+            <% if (gr1Games && gr1Games.length > 0) { %>
+                <% 
+                   const getChartSlug = (name) => {
+                       return (name || "").toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + "-satta-result";
+                   };
+                %>
+                <% gr1Games.forEach(game => { 
+                    const chartUrl = `/chart-2026/${getChartSlug(game.name)}`;
+                    const todayVal = (game.todayNumber && game.todayNumber.value) ? game.todayNumber.value : "XX";
+                    const yestVal = (game.yesterdayNumber && game.yesterdayNumber.value) ? game.yesterdayNumber.value : "XX";
+                %>
+                <div class="flex items-center justify-around space-x-4 border border-gray-900 ">
+                    <div class="w-full p-3">
+                        <p class="pb-2 text-xl font-bold tracking-wide text-gray-900 uppercase cursor-pointer text-start hover:underline hover:text-black">
+                            <a href="<%= chartUrl %>"><%= game.name %></a>
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold text-red-900">
+                                <%= game.resultTime12h || "" %> </p><a href="<%= chartUrl %>"
+                                class="px-2 text-xs bg-yellow-400 py-0.5 rounded-md hover:bg-yellow-300 ">View Chart</a>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-around w-[75%]">
+                        <p class="text-2xl font-medium tracking-wider">
+                            <%= yestVal %> </p>
+                        <p class="text-2xl font-medium tracking-wider">
+                            <%= todayVal %> </p>
+                    </div>
+                </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </section>
+
+
+
+
+
+
+
+    </section>
+    <h2
+        class="flex items-center justify-center text-center px-2 text-xl sm:text-4xl md:text-3xl lg:text-4xl font-bold text-blue-500 leading-tight">
+        lucky-satta7'S Other Popular Games List </h2>
+
+    <section class="row">
+        <div>
+            <div class="flex items-center justify-around space-x-4 bg-yellow-400 mt-4">
+                <p class="w-full p-3 font-bold text-white bg-purple-800">GAME LIST</p>
+                <div class="flex items-center justify-around bg-yellow-400 w-[75%]">
+                    <p class="text-lg font-semibold">कल</p>
+                    <p class="text-lg font-semibold">आज</p>
+                </div>
+            </div>
+
+            <% if (gr2Games && gr2Games.length > 0) { %>
+                <% 
+                   const getChartSlug2 = (name) => {
+                       return (name || "").toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + "-satta-result";
+                   };
+                %>
+                <% gr2Games.forEach(game => { 
+                    const chartUrl = `/chart-2026/${getChartSlug2(game.name)}`;
+                    const todayVal = (game.todayNumber && game.todayNumber.value) ? game.todayNumber.value : "XX";
+                    const yestVal = (game.yesterdayNumber && game.yesterdayNumber.value) ? game.yesterdayNumber.value : "XX";
+                %>
+                <div class="flex items-center justify-around space-x-4 border border-gray-900 ">
+                    <div class="w-full p-3">
+                        <p class="pb-2 text-xl font-bold tracking-wide text-gray-900 uppercase cursor-pointer text-start hover:underline hover:text-black">
+                            <a href="<%= chartUrl %>"><%= game.name %></a>
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold text-red-900">
+                                <%= game.resultTime12h || "" %> </p><a href="<%= chartUrl %>"
+                                class="px-2 text-xs bg-yellow-400 py-0.5 rounded-md hover:bg-yellow-300 ">View Chart</a>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-around w-[75%]">
+                        <p class="text-2xl font-medium tracking-wider">
+                            <%= yestVal %> </p>
+                        <p class="text-2xl font-medium tracking-wider">
+                            <%= todayVal %> </p>
+                    </div>
+                </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </section>
+
+
+    <% const bottomAds = (ads || []).filter(ad => ad.position === 'bottom' && ad.isActive !== false && ad.site === 'lucky-satta7.com'); %>
+    <% if (bottomAds.length > 0) { %>
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2 p-4 md:p-6">
+        <div
+            class="bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-300 border-white/30 shadow-cyan-200/50 relative overflow-hidden text-center px-2 py-6 md:px-8 md:py-8 rounded-2xl md:rounded-3xl backdrop-blur-sm text-white flex flex-col justify-center items-center">
+            <div class="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl">
+                <div
+                    class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500">
+                </div>
+                <div
+                    class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
+            </div>
+            <div class="absolute inset-0 rounded-2xl md:rounded-3xl p-[2px]">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent">
+                </div>
+            </div>
+            <div class="relative z-10 w-full">
+                <div
+                    class="text-base md:text-lg mb-4 h-fit leading-6 font-normal text-white/60 drop-shadow-sm [&amp;_a]:text-white [&amp;_a]:underline [&amp;_a]:hover:no-underline [&amp;_a]:font-bold [&amp;_strong]:text-white [&amp;_strong]:font-black [&amp;_em]:text-white/80 [&amp;_em]:italic [&amp;_p]:mb-1 last:[&amp;_p]:mb-0 ">
+                    <% bottomAds.forEach(ad => { %>
+                        <%- ad.content %>
+                    <% }); %>
+                </div>
+            </div>
+            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-white/30 rounded-tr-xl"></div>
+            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-white/30 rounded-bl-xl"></div>
+        </div>
+    </section>
+    <% } %>
+
+
+
+
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2 p-4 md:p-6"></section>
+    <form method="post" action="/gameYearResults">
+        <div class="py-8 mx-auto mt-4 bg-gray-600">
+            <h2 class="pb-4 text-2xl font-bold text-center text-white">Check All Game Year Chart</h2>
+            <div class="flex items-center justify-center mx-auto rounded">
+                <div class="flex mx-2">
+                    <select name="gLinkName" aria-label="games-all"
+                        class="py-2 text-sm uppercase bg-white rounded-md outline-none md:py-3 md:text-base lg:px-3">
+                        <% if (allGames && allGames.length > 0) { %>
+                            <% allGames.forEach(game => { 
+                                const slug = (game.name || "").toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + "-satta-result";
+                            %>
+                                <option value="<%= slug %>"><%= game.name %></option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="">No Games Found</option>
+                        <% } %>
+                    </select>
+                    <select name="year" aria-labelledby="games-all"
+                        class="px-2 py-2 mx-0 ml-1 text-sm bg-white rounded-md outline-none md:py-3 md:text-base lg:mx-3">
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div><button class="bg-[#004b87] text-white font-bold uppercase tracking-[0.15em] px-8 py-3 rounded-md shadow-[0_0_20px_rgba(0,130,255,0.6)] hover:bg-[#003d73] transition-all whitespace-nowrap" style="text-shadow: -1px 0 0 red, 1px 0 0 cyan;">CHECK CHART</button>
+            </div>
+        </div>
+    </form>
+
+    <%
+        const currentMonthName = new Date().toLocaleString('en-US', { month: 'long' }).toUpperCase();
+        const currentYear = new Date().getFullYear();
+    %>
+    <h3 class="font-bold py-4 select-none text-[22px] lg:text-4xl uppercase text-center md:text-3xl mb-2 text-blue-500 leading-10">
+        LUCKY-SATTA 7 <%= currentMonthName %> <%= currentYear %> RESULT CHART
+    </h3>
+
+    <!-- GROUP 1 MONTHLY TABLE -->
+    <div class="overflow-x-auto bg-white shadow-md">
+        <table class="table-auto min-w-max border-separate border-spacing-[2px]">
+            <thead>
+                <tr class="">
+                    <td scope="col" class="py-3 bg-[#0aa485] shadow-custom-inset-2 sticky rounded-lg lg:rounded-xl left-0 z-20 text-center lg:text-left lg:pl-8 text-[12px] lg:text-base font-bold text-white">
+                        DATE
+                    </td>
+                    <% if (gr1Games && gr1Games.length > 0) { %>
+                        <% gr1Games.forEach(game => { %>
+                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#950909] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
+                                <%= game.name %>
+                            </td>
+                        <% }); %>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (gr1MonthlyData && gr1MonthlyData.tableData && gr1MonthlyData.tableData.length > 0) { %>
+                    <% gr1MonthlyData.tableData.forEach(row => { %>
+                        <tr>
+                            <td scope="row" class="text-white text-left sticky left-0 z-20 lg:px-6 px-1 lg:py-4 py-3 bg-[#2d4b58] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg">
+                                <%= row.date %>
+                            </td>
+                            <% if (gr1Games && gr1Games.length > 0) { %>
+                                <% gr1Games.forEach(game => { 
+                                    const matchingKey = Object.keys(row).find(k => k.trim().toLowerCase() === game.name.trim().toLowerCase());
+                                    const val = (matchingKey && row[matchingKey] && row[matchingKey].value) ? row[matchingKey].value : '--';
+                                %>
+                                <td scope="row" class="text-white text-center z-10 px-6 bg-[#406e83] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg">
+                                    <%= val %>
+                                </td>
+                                <% }); %>
+                            <% } %>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="100%" class="text-white text-center z-10 px-6 bg-[#406e83] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg py-4">No data available for this month</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- GROUP 2 MONTHLY TABLE -->
+    <div class="overflow-x-auto bg-white shadow-md mt-6">
+        <table class="table-auto min-w-max border-separate border-spacing-[2px]">
+            <thead>
+                <tr class="">
+                    <td scope="col" class="py-3 bg-[#0aa485] shadow-custom-inset-2 sticky rounded-lg lg:rounded-xl left-0 z-20 text-center lg:text-left lg:pl-8 text-[12px] lg:text-base font-bold text-white">
+                        DATE
+                    </td>
+                    <% if (gr2Games && gr2Games.length > 0) { %>
+                        <% gr2Games.forEach(game => { %>
+                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#950909] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
+                                <%= game.name %>
+                            </td>
+                        <% }); %>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (gr2MonthlyData && gr2MonthlyData.tableData && gr2MonthlyData.tableData.length > 0) { %>
+                    <% gr2MonthlyData.tableData.forEach(row => { %>
+                        <tr>
+                            <td scope="row" class="text-white text-left sticky left-0 z-20 lg:px-6 px-1 lg:py-4 py-3 bg-[#2d4b58] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg">
+                                <%= row.date %>
+                            </td>
+                            <% if (gr2Games && gr2Games.length > 0) { %>
+                                <% gr2Games.forEach(game => { 
+                                    const matchingKey = Object.keys(row).find(k => k.trim().toLowerCase() === game.name.trim().toLowerCase());
+                                    const val = (matchingKey && row[matchingKey] && row[matchingKey].value) ? row[matchingKey].value : '--';
+                                %>
+                                <td scope="row" class="text-white text-center z-10 px-6 bg-[#406e83] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg">
+                                    <%= val %>
+                                </td>
+                                <% }); %>
+                            <% } %>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="100%" class="text-white text-center z-10 px-6 bg-[#406e83] shadow-custom-inset1 text-sm font-semibold whitespace-nowrap lg:text-base rounded-lg py-4">No data available for this month</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+
+    <style>
+        /* FAQ Container */
+        .faq_block {
+            padding: 20px 0;
+        }
+
+        /* Each item */
+        .faq_item {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        /* Question */
+        .faq_question {
+            padding: 15px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Hover */
+        .faq_question:hover {
+            background: #e9eef5;
+        }
+
+        /* Toggle (+ / -) */
+        .faq_toggle {
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        /* Answer (hidden by default) */
+        .faq_answer {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 20px;
+            background: #fff;
+            transition: all 0.4s ease;
+        }
+
+        /* Active state */
+        .faq_item.active .faq_answer {
+            max-height: 300px;
+            /* adjust if content bigger */
+            padding: 15px 20px;
+        }
+
+        /* Rotate + to - */
+        .faq_item.active .faq_toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq_item {
+            background: linear-gradient(to right, #ffffff, #f8fafc);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .homeContent h2,
+        .homeContent h3 {
+            background: #4f7586;
+            /* same as your image */
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+            padding: 14px 10px;
+            margin: 20px 0;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Optional: Different sizes */
+        .homeContent h2 {
+            font-size: 22px;
+        }
+
+        .homeContent h3 {
+            font-size: 20px;
+        }
+
+        .homeContent .ql-align-center {
+            background: #37C0F6 !important;
+            /* Tailwind blue-500 */
+        }
+
+        /* Section */
+        .blog_main_section {
+            padding: 30px 0;
+        }
+
+        /* Heading */
+        .blog_top_heading {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .blog_top_heading a {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            background: #4f7586;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        /* Background */
+        .blog_bg_area {
+            padding: 10px 0;
+        }
+
+        /* Card */
+        .blog_bg_area .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .blog_bg_area .row>div {
+            display: flex;
+        }
+
+        .blog_bg_area a {
+            width: 100%;
+            display: block;
+            text-decoration: none;
+        }
+
+        .blog_single_card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            width: 100%;
+            height: auto;
+            margin-bottom: 25px;
+        }
+
+        /* Hover effect */
+        .blog_single_card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .blog_img_area {
+            width: 100%;
+            text-align: center;
+            background: #fff;
+        }
+
+        .blog_img_area img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Content */
+        .blog_text_area {
+            padding: 15px;
+        }
+
+        /* Title */
+        .blog_text_area h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        /* Date */
+        .blog_date {
+            display: block;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        /* Tags */
+        .blog_tags {
+            font-size: 13px;
+            color: #4f7586;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        /* Description */
+        .blog_description {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        @media (min-width: 992px) {
+            .blog_bg_area .row>div {
+                width: 25%;
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .blog_bg_area .row>div {
+                width: 50%;
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .blog_bg_area .row>div {
+                width: 100%;
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+    <div class="bg-white md:py-4 homeContent">
+        <h3 class="ql-align-center"><strong>LUCKY-SATTA 7 &nbsp;&ndash; Live Satta Results&nbsp;&amp; Charts</strong>
+        </h3>
+
+        <p>lucky-satta7.com is an online platform for live and updated LUCKY-SATTA 7 results and Matka record chart
+            tables.
+            At theLUCKY-SATTA 7 website, you can check live updates of almost all LUCKY-SATTA 7 games, including Delhi
+            Bazar Satta, Faridabad, Disawar, Shri Ganesh, Ghaziabad, Gali Satta, Black Satta, LUCKY-SATTA 7 786, Alwar
+            Satta, Satta Fast, Sadar Bazar, and Dwarka Satta. Here you can check the latest and old historical record
+            charts from 2021 to 2026. Please keep in mind thatLUCKY-SATTA 7 is an informational platform, so you cannot
+            play any Satta games here.</p>
+
+        <h3 class="ql-align-center"><strong>The Complete Guide to LUCKY-SATTA 7 &nbsp;in 2026</strong></h3>
+
+        <p>In this game, the Satta player can choose any number from 0 to 99. The selection of the number decides the
+            chances of winning. To choose the perfect number, Khaiwal can help you with this process. To help players
+            and game operators communicate with each other, Khaiwal mediates between them. The information given by the
+            players in Khaiwal&#39;s location shows that the company gets both numbers and money. The rules of the game
+            regulate such behaviour. The winner will distribute and collect the prizes. The Satta business uses a random
+            selection process and reveals the winners at a fixed time. Anyone who bets on a winning number and gets it
+            will get back ninety times their starting investment.</p>
+
+        <h3 class="ql-align-center"><strong>What does it mean by LUCKY-SATTA 7 ?</strong></h3>
+
+        <p>The game of <a href="/yearsChart">LUCKY-SATTA 7 </a> is quite popular in the
+            Southeast
+            Asian region, especially in India. In essence, it is a game where players attempt to predict the outcome of
+            a numerical sequence; specifically, any number from zero to ninety-nine can be involved in LUCKY-SATTA 7
+            games.
+            Typically, players place their bids through a middleman, who then relays the funds to the game owner&#39;s
+            network. The owner chooses a number from zero to ninety-nine and then announces it through various channels.
+            Those who bid on the exact number have the chance to win payouts ranging from ninety to one hundred times
+            their original bid. We outline the gameplay of LUCKY-SATTA 7 in its simplest form below.</p>
+
+        <h3 class="ql-align-center"><strong>History of LUCKY-SATTA 7 </strong></h3>
+
+        <p>India&#39;s informal betting has traced the evolution of LUCKY-SATTA 7 . It has made significant progress
+            since
+            then. The simple betting system that started in the pre-independence era later formed a big underground
+            network of betting based on numbers, which we know as LUCKY-SATTA 7 or Matka today.</p>
+
+        <p>The history of LUCKY-SATTA 7 dates back to the 1950s, but the name was given even earlier during British rule
+            in
+            India. Back then, people regularly gambled on both the opening and closing prices of cotton on the <a
+                href="https://en.wikipedia.org/wiki/New_York_Cotton_Exchange">New York Cotton Exchange</a>.</p>
+
+        <ul>
+            <li class="ql-indent-1">Individuals engaged in trading and gambling within the bustling metropolis of Mumbai
+                would regularly place wagers on cotton prices</li>
+            <li class="ql-indent-1">The outcome was based on real global market data</li>
+            <li class="ql-indent-1">People began placing bets because they believed it to be real</li>
+            <li class="ql-indent-1">When the system ceased to work, bettors started seeking other ways to continue the
+                game</li>
+        </ul>
+
+        <p>However, when the system stopped functioning, bettors started looking for alternative ways to continue the
+            game.</p>
+
+        <h3 class="ql-align-center"><strong>How do I check the LUCKY-SATTA 7 results at this website?</strong></h3>
+
+        <p>If you want to know the LUCKY-SATTA 7 results and today&#39;s LUCKY-SATTA 7 numbers, you can trustLUCKY-SATTA
+            .
+            It
+            gives you live information. We consistently provide you with verified Satta numbers, ensuring that we
+            cross-check every change before making it public. Our team gets the Satta Matka results from websites that
+            anyone can access. Visit our website, click on the chart page, and choose the Satta game for which you want
+            to see the results. This site will show you live updates of the LUCKY-SATTA 7 &#39;s results.</p>
+
+        <h3 class="ql-align-center"><strong>What is the <a href="/yearsChart">LUCKY-SATTA 7
+                    Chart</a>, and how do you check it?</strong></h3>
+
+        <p>The <a href="/yearsChart">LUCKY-SATTA 7 chart</a> is a record table that displays the
+            daily winning numbers from several Satta markets, including <a
+                href="/chart-2026/gali-satta-result">Gali Satta</a>, Desawar, <a
+                href="/chart-2026/faridabad-satta-result">Faridabad Satta</a>, <a
+                href="/chart-2026/gaziyabad-satta-result">Ghaziabad</a>, Shree Ganesh, Delhi
+            Bazar, Rajdhani, and many more. In essence, it&#39;s a record of prior results organized by date, making it
+            easy for users to see which numbers came today, yesterday, and months or years ago. Click on the
+            &quot;Charts&quot; tab in the menu on our website to view the LUCKY-SATTA 7 chart. For a complete record of
+            winning numbers from 2021 through 2026, visit our annual chart page. Keep in mind that it&#39;s useful for
+            predicting future numbers because Satta is a game of chance and a high-risk game; there&#39;s no method that
+            can predict the result.</p>
+
+        <h3 class="ql-align-center"><strong>How do you play LUCKY-SATTA 7 online, and why?</strong></h3>
+
+        <p>No one from the authorities will be able to stop you while you play Satta online. People that play games
+            online are difficult to catch. A giant fee is imposed for betting, which is <a
+                href="https://righttoinformation.wiki/satta-king-legal-india">illegal in India</a>. The Google Play
+            store is a reliable source of entertaining and engaging online games. Please download and install the app.
+            You can play satta games from the comfort of your own home.</p>
+
+        <h3 class="ql-align-center"><strong>How much money can you make with <a
+                    href="/chart-2026/delhi-bazar-satta-result">Delhi Bazar Satta</a>?</strong>
+        </h3>
+
+        <p>If a player bets 10 rupees on a number and that number wins, they will receive 10 times 90, which totals 900
+            rupees. The same payout applies for bets of 20, 30, 40, and 50 rupees; players will receive 1800 rupees for
+            each of those amounts. Additionally, a player can participate in the game multiple times and wager any
+            amount of money they desire.</p>
+
+        <h3 class="ql-align-center"><strong>What is the reality of LUCKY-SATTA 7 games?</strong></h3>
+
+        <p>It is important to remember that Satta is only one type of lottery game. One hundred people will be taking
+            part in it on their own. Everything from 1 to 100 is added together, and a random number between 1 and 100
+            is chosen. Thereafter, a random number is picked from any slip. Best of luck if your ticket number wins! The
+            process is precisely what it sounds like, but it does not involve any of the previously mentioned methods.
+            Satta Company employees do not randomly select a number from a pool of one hundred. Instead, they pick a
+            lucky card from a pool. Making as much money as possible is what Satta&#39;s job is all about. To put it
+            another way, the numbers are not picked at random. All the numbers are set by the Satta Company. Because of
+            this, Satta makes a lot of money, and the amount of money each player gets as a prize decides who wins.</p>
+
+        <h3 class="ql-align-center"><strong>What is DELHI LUCKY-SATTA 7 ?</strong></h3>
+
+        <p>The popular game <a href="/chart-2026/delhi-bazar-satta-result">Delhi Bazaar
+                Satta</a>, named after Delhi, the capital of India, is where the nickname <a
+                href="/chart-2026/delhi-bazar-satta-result">LUCKY-SATTA 7 Delhi</a> Bazaar
+            originated. The term &quot;bazaar&quot; translates to &quot;market,&quot; so &quot;Delhi Bazaar&quot; means
+            &quot;Delhi Market.&quot; In the context of LUCKY-SATTA 7 , however, it refers to a game involving numbers
+            from
+            0 to 99. Each day at 3:15, the game owner announces an unknown number. Players who bid on that number will
+            receive 100 times their bid if they are correct, while those who choose the wrong number will lose their
+            money. Consequently, participating in <a href="https://en.wikipedia.org/wiki/Matka_gambling">LUCKY-SATTA 7
+            </a>
+            Delhi Bazaar can be challenging because there is a risk of loss. It&#39;s also crucial to remember that it
+            is against the law to play games like LUCKY-SATTA 7 Delhi Bazaar.</p>
+
+        <h3 class="ql-align-center"><strong>Is LUCKY-SATTA 7 legal in India? Key Facts You Should Know</strong></h3>
+
+        <p>No. LUCKY-SATTA 7 is considered illegal across India. It falls under unregulated gambling activities based
+            mainly on chance and is restricted under the Public Gambling Act of 1867, along with various state gambling
+            laws. Online gambling platforms may also face action under the Information Technology Act, 2000, and newer
+            online gaming regulations. Participating in, promoting, or operating LUCKY-SATTA 7 activities can lead to
+            legal
+            consequences. In India, gambling is legally permitted only in certain licensed casinos located in states
+            such as Goa, Daman, and Sikkim, as well as in officially approved state-run lotteries.</p>
+
+        <h3 class="ql-align-center"><strong>What is the leak number for Lucky-Satta7?</strong></h3>
+
+        <p>We will reveal a little secret to you, enabling you to witness everything unfold before your eyes. Assuming
+            you play Satta in Gali and Disawar, where the potential leak is 100% direct, you can win thousands of
+            rupees. We only help people who have suffered major losses and are struggling. The company&#39;s account,
+            not the employees&#39; accounts, is where fees should be deposited. Individuals can become wealthy by using
+            Gali and Delhi Satta. If you want to change your future, you have to do something. We are currently going to
+            pay for all of the players&#39; losses and loans. In addition to the leaked Jodi, we will also offer you
+            millions and millions of rupees.</p>
+
+        <h3 class="ql-align-center"><strong>Is the Shri Ganesh result published on this website?</strong></h3>
+
+        <p>Yes, theLUCKY-SATTA website is one of the fastest to publish <a
+                href="/chart-2026/shri-ganesh-satta-result">Shri Ganesh Satta</a> results, which
+            are published every day around 4:40 PM, and the chart part is updated in real time. Shri Ganesh Satta
+            players prefer theLUCKY-SATTA website because of its dynamic style and straightforward result section that
+            provides information in real time.</p>
+
+        <h3 class="ql-align-center"><strong>LUCKY-SATTA 7 vs Satta Matka: Key Differences Explained</strong></h3>
+
+        <p>LUCKY-SATTA 7 and Satta Matka are different terms for the same thing, but the difference is subtle and often
+            overlooked. To understand it clearly, Satta Matka refers to the original system that started decades ago,
+            when people used to draw slips from a matka (earthen pot). In contrast, the term &#39;LUCKY-SATTA 7 &#39; is
+            more modern and widely used today, representing the evolved version of the same system, especially in the
+            digital era where results are shared online. This has made both terms popular in today&rsquo;s
+            internet-driven environment.</p>
+
+        <h3 class="ql-align-center"><strong>Key Understanding</strong></h3>
+
+        <ul>
+            <li class="ql-indent-1">Both LUCKY-SATTA 7 and Satta Matka refer to the same betting activity</li>
+            <li class="ql-indent-1">Players bet on numbers ranging from 00 to 99</li>
+            <li class="ql-indent-1">Both systems are entirely based on luck</li>
+            <li class="ql-indent-1">Outcomes cannot be predicted in either format</li>
+        </ul>
+
+        <h3 class="ql-align-center"><strong>Why Has LUCKY-SATTA 7 Gained Massive Popularity in India?</strong></h3>
+
+        <p>LUCKY-SATTA 7 is gaining popularity in India due to the growing demand for instant information about the
+            satta
+            game. It is easily accessible to users on the internet and has become a source of curiosity among them, as
+            it has a number-result system. Moreover, LUCKY-SATTA 7 users prefer to visit sites that are quick to provide
+            updates along with a chart of previous results and live results at the same place. As everyone now possesses
+            smartphones or has access to inexpensive internet, people from all parts of the country can easily access
+            Lucky-Satta7 websites whenever they want. They can thus check results without any hassle, nor do they feel
+            obligated to get their hands on newspapers.</p>
+
+        <p>The platform has a simple interface, regular updates, and coverage of other popular Satta markets such as
+            Delhi, Faridabad, Disawar, and more, making it a hot favorite within the audience looking for speedy,
+            organized information. The charm of past data and charts, which are available for exploration by many users,
+            adds extra appeal, although the result could go either way. Due to its high reliability, many users are
+            regularly visiting LUCKY-SATTA 7 . Social media sharing and word-of-mouth popularity have significantly
+            helped
+            its success. In addition, the growing trend of online result checkers has also contributed to its
+            popularity.</p>
+
+        <h3 class="ql-align-center"><strong>Security and Privacy Measures</strong></h3>
+
+        <p>Visitors ofLUCKY-SATTA 7 .com should be more than mindful that the safety and privacy of their information
+            and
+            data lie squarely in their hands and fingers, given that such sites are unregulated and regulated by the
+            users. Never enter sensitive information such as bank passwords, OTPs, or UPI PINs, and ensure that the site
+            is using secure connections (check whether the site has HTTPS in the URL) before submitting any information.
+            Strong and unique passwords, avoiding shared or common devices, and avoiding suspicious links, downloads, or
+            other third-party redirects can also mitigate the risk of unauthorized access, whereas staying off of
+            suspicious links, downloads, or other third-party redirects can prevent scams. As the legal system and
+            official controls over such sites cannot ensure such protection, users must be aware of the risk of possible
+            misuse of their data or financial loss, and they must take responsibility for their own online safety by
+            keeping their devices secure, updating them with the latest software, and being aware of the most common
+            fraud schemes.</p>
+
+        <p>&nbsp;</p>
+    </div>
+    <section class="faq_block">
+        <div class="container">
+            <div class="py-4 mx-auto my-4 bg-[#406e83]" style="background: rgb(13, 57, 84);">
+                <h5 class="text-2xl font-bold text-center text-white">Frequently Asked Questions</h5>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    What isLUCKY-SATTA 7 ?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    This is a reliable platform that gives you daily LUCKY-SATTA 7 Live results and updated charts.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Which Satta Matka Bazar markets are covered?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    We provide results and charts for popular LUCKY-SATTA 7 markets, including Delhi Bazar, Disawar,
+                    Gali,
+                    Faridabad, Ghaziabad, Sadar Bazar, and Shri Ganesh, among others.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    How can I access the Delhi Bazar Satta chart?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    You can access the Delhi Bazar Satta chart by visiting the chart section on our website. We
+                    regularly update the chart page, displaying year-wise and date-wise result records for your
+                    reference. </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    At what time is the Shri Ganesh Satta result declared?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    The Shri Ganesh Satta result is usually declared at 04:40 PM. </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    DoesLUCKY-SATTA allow users to play Satta games online?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    No. We do not host, organize, or allow any Satta games. The website only provides publicly available
+                    results and chart records for informational purposes. </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    How can I check the Delhi Bazar Satta result? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    Delhi Bazar Satta results are published on this website once they become publicly available. Users
+                    can check the latest result by visiting the Delhi Bazar section on the website.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Are the results shown onLUCKY-SATTA reliable? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    LUCKY-SATTA focuses on accuracy, consistency, and verified publishing. Results are updated after
+                    confirmation and are presented clearly with proper records.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Where can I check today’s Gali Satta result?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    You can check the Gali Satta result by visiting the Gali section on this website. Results are
+                    updated daily along with chart references.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Does this website provide live Satta results?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    We provide LUCKY-SATTA 7 results and news as soon as they are publicly declared. All updates are
+                    clearly marked to avoid confusion between early information and final results. </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    When are Sadar Bazar Satta results updated?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    Sadar Bazar Satta results are usually updated around their declared time. The website reflects
+                    updates only after results become publicly available.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Where can I find the Delhi Bazar Satta old chart? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    Delhi Bazar old charts are available in the year-wise chart section on our website. These charts
+                    help users review historical result records.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Does this website provide lucky numbers or number predictions? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    No. we does not provide lucky numbers, predictions, guessing tips, or future outcomes. The website
+                    only displays historical and current result records.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    What is the Timing of Diwawar Satta Result? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    The Disawar satta result is declared usually around 5:00 AM to 5:30 AM </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Can this website help me guess the next Satta number? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    No. We does not support or promote guessing, forecasting, or prediction of numbers. All content is
+                    strictly informational.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Does this website offer any platform to place bids or bets?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    No. This is not a betting platform and does not connect users with any bidding or playing services.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    What is the Timing of Shri Ganesh Satta result? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    We update Shri Ganesh Satta results as soon as officially updated on our website. We publishes them
+                    as soon as the information becomes publicly available. Every result is cross checked before making
+                    them public for users.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    What does DL Satta mean? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    DL or DB Satta also known as Delhi Satta is a commonly used term referring to Delhi Bazar Satta.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    How can I check the previous years Disawar Satta chart? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    To view the Disawar Satta chart, visit the chart section on our website and select the year.
+                    Year-wise charts are available for reference. Here you can check previous record charts from 2021 to
+                    2026. </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Are Faridabad Satta results updated early onLUCKY-SATTA 7 ?
+                    <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    LUCKY-SATTA 7 updates results only after they are publicly declared. Any time difference depends on
+                    availability and traffic, but accuracy remains our priority.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    What is LUCKY-SATTA 7 fast? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    LUCKY-SATTA 7 is a commonly used term associated with number-based result markets.LUCKY-SATTA 7
+                    provides related result information strictly for awareness and record-keeping.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Is Satta legal in India? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    Satta-related activities are restricted under Indian law in many regions. We does not promote
+                    participation and shares information strictly for awareness purposes.
+                </div>
+            </div>
+
+            <div class="faq_item">
+                <div class="faq_question">
+                    Is this website is free to use? <span class="faq_toggle">+</span>
+                </div>
+                <div class="faq_answer">
+                    Yes. We provides free access to results and chart records for informational use.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog_main_section">
+        <div class="blog_top_heading">
+            <a href="/blogs">BLOGS</a>
+        </div>
+        <div class="blog_bg_area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 px-3">
+                        <a
+                            href="/blog/the-truth-behind-faridabad-satta-king-payout-discussions-and-internet-claims">
+                            <div class="blog_single_card">
+                                <div class="blog_img_area"><img
+                                        src="/assets/images/blogImages/blog_faridabad_truth.png"
+                                        alt="The Truth Behind Faridabad LUCKY-SATTA 7   Payout Discussions and Internet Claims">
+                                </div>
+                                <div class="blog_text_area">
+                                    <h4>The Truth Behind Faridabad LUCKY-SATTA 7 Payout Discussions and Internet Claims
+                                    </h4>
+                                    <span class="blog_date">Posted on 10 May 2026</span>
+                                    <p class="blog_tags">faridabad satta, faridabad LUCKY-SATTA 7 </p>
+                                    <p class="blog_description">
+                                        Faridabad LUCKY-SATTA 7 Payout Discussions and Internet Claims Let me tell you
+                                        what
+                                        happens every...Read More </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 px-3">
+                        <a
+                            href="/blog/delhi-bazar-satta-charts-2026-understanding-number-trends-market-updates">
+                            <div class="blog_single_card">
+                                <div class="blog_img_area"><img
+                                        src="/assets/images/blogImages/blog_delhi_bazar_charts.png"
+                                        alt="Delhi Bazar Satta Charts 2026: Understanding Number Trends & Market Updates">
+                                </div>
+                                <div class="blog_text_area">
+                                    <h4>Delhi Bazar Satta Charts 2026: Understanding Number Trends & Market Updates</h4>
+                                    <span class="blog_date">Posted on 9 May 2026</span>
+                                    <p class="blog_tags">Delhi Bazar satta, Delhi Satta</p>
+                                    <p class="blog_description">
+                                        In 2026, Delhi Bazar Satta is once again making waves online. The Delhi Bazar
+                                        charts,...Read More </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 px-3">
+                        <a href="/blog/Lucky-Satta7-guide-2026-how-it-works-important-facts">
+                            <div class="blog_single_card">
+                                <div class="blog_img_area"><img
+                                        src="/assets/images/blogImages/blog_lucky_satta7_guide.png"
+                                        alt="lucky satta7 Guide 2026: How It Works & Important Facts"></div>
+                                <div class="blog_text_area">
+                                    <h4>lucky satta7 Guide 2026: How It Works & Important Facts</h4>
+                                    <span class="blog_date">Posted on 9 May 2026</span>
+                                    <p class="blog_tags">lucky satta7 guide 2026, LUCKY-SATTA 7 </p>
+                                    <p class="blog_description">
+                                        There are thousands of visitors online every day looking for live results,
+                                        charts, number trends,...Read More </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="p-4 text-white bg-[#406e83] shadow md:px-6 md:py-8">
+        <div class="sm:flex sm:items-center sm:justify-between"><a class="flex items-center mb-4 sm:mb-0" href="/"><span
+                    style="box-sizing:border-box;display:inline-block;overflow:hidden;width:initial;height:initial;background:none;opacity:1;border:0;margin:0;padding:0;position:relative;max-width:100%"><span
+                        style="box-sizing:border-box;display:block;width:initial;height:initial;background:none;opacity:1;border:0;margin:0;padding:0;max-width:100%"></span></a>
+            <ul class="flex flex-wrap items-center justify-end mb-4 text-sm text-gray-500 md:justify-start sm:mb-0">
+                <li class="flex items-center">
+                    <a class="px-2 text-xs md:text-lg text-white hover:underline" href="/privacy-policy">Privacy
+                        Policy</a>
+                    <span class="text-gray-200 md:hidden">|</span>
+                </li>
+
+                <li class="flex items-center">
+                    <a class="px-2 text-xs md:text-lg text-white hover:underline" href="/terms-and-conditions">Terms
+                        &amp; Conditions</a>
+                    <span class="text-gray-200 md:hidden">|</span>
+                </li>
+
+                <li class="flex items-center">
+                    <a class="px-2 text-xs md:text-lg text-white hover:underline" href="/disclaimer">Disclaimer</a>
+                </li>
+
+            </ul>
+        </div>
+        <hr class=" border-gray-200 sm:mx-auto lg:my-8" />
+        <p class="text-sm text-center text-red-400 ">!! DISCLAIMER:-LUCKY-SATTA 7 .com is a non-commercial website.
+            Viewing This Website Is Your Own Risk. All The Information Shown On Website Is Sponsored And We Warn You
+            That Matka Gambling/Satta May Be Banned Or Illegal In Your Country. We Are Not Responsible For Any Issues Or
+            Scam. We Respect All Country Rules/Laws. If You Are Not Agree With Our Site Disclaimer. Please Quit Our Site
+            Right Now. Thank You.</p>
+        <hr class=" border-gray-200 sm:mx-auto lg:my-4" /><span class="block text-sm text-white sm:text-center "> © <a
+                class="hover:underline " href="/">lucky-satta7OFFICIAL WEBSITE <!-- -->™</a>. All Rights
+            Reserved.</span>
+    </footer>
+    </div>
+    </div><!--  Must Check -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.faq_question').forEach(function (question) {
+                question.addEventListener('click', function () {
+                    const item = this.parentElement;
+
+                    document.querySelectorAll('.faq_item').forEach(function (el) {
+                        if (el !== item) {
+                            el.classList.remove('open');
+                            el.querySelector('.faq_toggle').innerText = '+';
+                        }
+                    });
+
+                    item.classList.toggle('open');
+                    this.querySelector('.faq_toggle').innerText =
+                        item.classList.contains('open') ? '−' : '+';
+                });
+            });
+        });
+    </script>
+    <script>
+        document.querySelectorAll(".faq_question").forEach((item) => {
+            item.addEventListener("click", () => {
+                let parent = item.parentElement;
+
+                // Close others (optional - accordion style)
+                document.querySelectorAll(".faq_item").forEach((el) => {
+                    if (el !== parent) {
+                        el.classList.remove("active");
+                    }
+                });
+
+                // Toggle current
+                parent.classList.toggle("active");
+            });
+        });
+    </script>
+
+    <script>
+        setInterval(function () {
+            let now = new Date();
+
+            let options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
+            let date = now.toLocaleDateString('en-US', options);
+            let time = now.toLocaleTimeString('en-US');
+
+            document.getElementById("timerBox").innerText = date + " " + time;
+        }, 1000);
+    </script>
+
+
