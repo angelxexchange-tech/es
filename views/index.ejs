@@ -261,8 +261,8 @@
                         }
                     %>
                     <% displayGames.slice(0, 4).forEach(game => { %>
-                        <div class="bg-white flex flex-col text-center rounded-[3px] overflow-hidden" style="border: 1px solid #dca3a3; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
-                            <div class="text-white py-[8px]" style="background-color: #9c1b1b; border-bottom: 2px solid #841616;">
+                        <div class="bg-white flex flex-col text-center rounded-[3px] overflow-hidden" style="border: 1px solid #bfdbfe; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+                            <div class="text-white py-[8px]" style="background-color: #2563eb; border-bottom: 2px solid #1d4ed8;">
                                 <div class="text-[1.2rem] font-medium leading-tight tracking-wide"><%= (game.name || "").toUpperCase() %></div>
                                 <% const hName = getHindiName(game.name); if(hName) { %>
                                     <div class="text-[0.9rem] font-medium leading-tight"><%= hName %></div>
@@ -626,7 +626,7 @@
                     </td>
                     <% if (gr1Games && gr1Games.length > 0) { %>
                         <% gr1Games.forEach(game => { %>
-                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#950909] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
+                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#2563eb] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
                                 <%= game.name %>
                             </td>
                         <% }); %>
@@ -671,7 +671,7 @@
                     </td>
                     <% if (gr2Games && gr2Games.length > 0) { %>
                         <% gr2Games.forEach(game => { %>
-                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#950909] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
+                            <td scope="col" class="py-3 px-4 shadow-custom-inset-3 z-10 rounded-xl bg-[#2563eb] text-[12px] lg:text-base font-semibold lg:font-bold uppercase text-white text-center whitespace-nowrap min-w-max">
                                 <%= game.name %>
                             </td>
                         <% }); %>
